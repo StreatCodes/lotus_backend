@@ -5,3 +5,4 @@ authors = ["StreatCodes <matt.r.streatfield@gmail.com>"]
 
 [dependencies]
 rusqlite = "0.13.0"
+warp = "0.1.0"
