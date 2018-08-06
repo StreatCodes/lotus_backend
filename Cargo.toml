@@ -4,5 +4,5 @@ version = "0.1.0"
 authors = ["StreatCodes <matt.r.streatfield@gmail.com>"]
 
 [dependencies]
-rusqlite = "0.13.0"
+postgres = "0.15.2"
 warp = "0.1.0"

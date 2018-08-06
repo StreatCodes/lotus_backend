@@ -1,5 +1,12 @@
-db:
-  image: postgres:alpine
-  restart: always
-  environment:
-    POSTGRES_PASSWORD: computer
+version: '3'
+services:
+  db:
+    image: postgres:alpine
+    restart: always
+    expose: 
+      - 5433
+
+  lotus_backend:
+    build: .
+    depends_on: 
+      - db
