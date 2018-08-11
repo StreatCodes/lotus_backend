@@ -1,26 +1,27 @@
-CREATE TABLE pages (
-	id			INTEGER PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS pages (
+	id			SERIAL PRIMARY KEY,
 	title		TEXT,
-	slug		TEXT
+	slug		TEXT,
+	sort		INTEGER
 );
 
-CREATE TABLE users (
-	id			INTEGER PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS users (
+	id			SERIAL PRIMARY KEY,
 	name		TEXT,
 	email		TEXT,
 	password	TEXT
 );
 
-CREATE TABLE sessions (
+CREATE TABLE IF NOT EXISTS sessions (
 	user_id 	INTEGER REFERENCES users,
 	key 		TEXT,
 	created_ip 	TEXT
 );
-CREATE INDEX session_index ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS session_index ON sessions(user_id);
 
-CREATE TABLE components (
-	id			INTEGER PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS components (
+	id			SERIAL PRIMARY KEY,
 	page_id 	INTEGER REFERENCES pages,
 	sort		INTEGER,
-	data		STRING
+	data		TEXT
 );

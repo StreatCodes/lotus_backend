@@ -3,8 +3,9 @@ services:
   db:
     image: postgres:alpine
     restart: always
-    expose: 
-      - 5433
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "computer"
 
   lotus_backend:
     build: .

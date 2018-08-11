@@ -1,2 +1,3 @@
-cargo build;
-docker-compose up --build;
+cargo build --target=x86_64-unknown-linux-musl;
+docker-compose build --no-cache;
+docker-compose up;
