@@ -7,9 +7,11 @@ use std::io::prelude::*;
 use postgres::{ Connection, TlsMode };
 use warp::Filter;
 
+mod pages;
+
 fn main() {
 	println!("Waiting for postgres");
-	std::thread::sleep(std::time::Duration::from_millis(800));
+	std::thread::sleep(std::time::Duration::from_millis(1500));
 
 	let conn = Connection::connect("postgres://postgres:computer@db", TlsMode::None)
 		.expect("Could not connect to postgres database");
@@ -22,10 +24,15 @@ fn main() {
 
 	conn.batch_execute(&sql_setup).expect("Couldn't run setup sql");
 
-    // GET /hello/warp => 200 OK with body "Hello, warp!"
-    let hello = path!("hello" / String)
-        .map(|name| format!("Hello, {}!", name));
+	// GET /hello/warp => 200 OK with body "Hello, warp!"
+	let hello = path!("hello" / String)
+		.map(|name| format!("Hello, {}!", name));
 
-    warp::serve(hello)
-        .run(([127, 0, 0, 1], 3030));
+	//TODO
+	// let routes = hello.or(
+	// 	path!("hello" / String).pages::bye_handler()
+	// 	);
+
+	warp::serve(hello)
+		.run(([0, 0, 0, 0], 3030));
 }

@@ -1,3 +1,4 @@
 cargo build --target=x86_64-unknown-linux-musl;
-docker-compose build --no-cache;
-docker-compose up;
+docker-compose up --build\
+	--force-recreate\
+	--renew-anon-volumes;
