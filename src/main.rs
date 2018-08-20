@@ -29,10 +29,9 @@ fn main() {
 		.map(|name| format!("Hello, {}!", name));
 
 	//TODO
-	// let routes = hello.or(
-	// 	path!("hello" / String).pages::bye_handler()
-	// 	);
+	let routes = hello
+		.or(pages::bye_handler());
 
-	warp::serve(hello)
+	warp::serve(routes)
 		.run(([0, 0, 0, 0], 3030));
 }
