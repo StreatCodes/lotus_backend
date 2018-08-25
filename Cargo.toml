@@ -1,8 +1,0 @@
-[package]
-name = "lotus_backend"
-version = "0.1.0"
-authors = ["StreatCodes <matt.r.streatfield@gmail.com>"]
-
-[dependencies]
-postgres = "0.15.2"
-warp = "0.1.1"
