@@ -1,2 +1,3 @@
 src/lotus_backend
 src/gin-bin
+.env

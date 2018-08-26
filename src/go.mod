@@ -12,6 +12,8 @@ require (
 	github.com/go-chi/chi v3.3.2+incompatible
 	github.com/golang/lint v0.0.0-20180702182130-06c8688daad7 // indirect
 	github.com/haya14busa/goplay v1.0.0 // indirect
+	github.com/jmoiron/sqlx v0.0.0-20180614180643-0dae4fefe7c0
+	github.com/joho/godotenv v1.2.0
 	github.com/josharian/impl v0.0.0-20180228163738-3d0f908298c4 // indirect
 	github.com/karrick/godirwalk v1.7.3 // indirect
 	github.com/lib/pq v1.0.0

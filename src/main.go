@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -21,8 +24,9 @@ func main() {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(server.env))
+		w.Write([]byte(server.Env))
 	})
 
-	http.ListenAndServe(server.address+":"+server.port, r)
+	fmt.Println("Starting http server on: " + server.HTTPAddress())
+	http.ListenAndServe(server.HTTPAddress(), r)
 }
