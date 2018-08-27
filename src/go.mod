@@ -29,7 +29,7 @@ require (
 	github.com/spf13/pflag v1.0.2 // indirect
 	github.com/uudashr/gopkgs v1.3.2 // indirect
 	golang.org/x/arch v0.0.0-20180516175055-5de9028c2478 // indirect
-	golang.org/x/crypto v0.0.0-20180820150726-614d502a4dac // indirect
+	golang.org/x/crypto v0.0.0-20180820150726-614d502a4dac
 	golang.org/x/lint v0.0.0-20180702182130-06c8688daad7 // indirect
 	golang.org/x/sys v0.0.0-20180824143301-4910a1d54f87 // indirect
 	golang.org/x/tools v0.0.0-20180824175216-6c1c5e93cdc1 // indirect

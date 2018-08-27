@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
 	id				SERIAL PRIMARY KEY,
 	created_at		TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	name			TEXT,
-	email			TEXT,
+	email			TEXT UNIQUE,
 	password		TEXT
 );
 
