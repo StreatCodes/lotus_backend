@@ -16,7 +16,7 @@ func authorizeHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 		password string
 	}
 
-	stmt, err := s.DB.Prepare(`SELECT id, password FROM users WHERE email=?`)
+	stmt, err := s.DB.Prepare(`SELECT id, password FROM users WHERE email=$1`)
 	if err != nil {
 		log.Fatal("Error preparing sql statement: " + err.Error())
 	}

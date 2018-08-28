@@ -27,6 +27,12 @@ func main() {
 		w.Write([]byte(server.Env))
 	})
 
+	r.Route("/api", func(r chi.Router) {
+		r.Post("/authorize", authorizeHandler(server))
+
+		r.Post("/users", CreateUserHandler(server))
+	})
+
 	fmt.Println("Starting http server on: " + server.HTTPAddress())
 	http.ListenAndServe(server.HTTPAddress(), r)
 }

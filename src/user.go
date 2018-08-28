@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"net/mail"
@@ -37,18 +36,19 @@ func passwordValidation(password string) error {
 	return nil
 }
 
+//CreateUserHandler returns an http handler that creates a new user when posted to
 func CreateUserHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 	type requestUser struct {
-		Name     string
-		Email    string
-		Password string
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	stmt, err := s.DB.Prepare(`INSERT INTO users (
 			name, email, password
 		) VALUES (
 			$1, $2, $3
-		)`)
+		) RETURNING id`)
 
 	if err != nil {
 		log.Fatal("Error preparing sql statement: " + err.Error())
@@ -87,19 +87,20 @@ func CreateUserHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		res, err := stmt.Exec(user.Name, user.Email, passwordHash)
+		row := stmt.QueryRow(user.Name, user.Email, passwordHash)
+
+		var id int
+		err = row.Scan(&id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		id, err := res.LastInsertId()
+		enc := json.NewEncoder(w)
+		err = enc.Encode(id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		//TODO quick hack
-		fmt.Fprintf(w, `{id: %d}`, id)
 	}
 }
