@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
@@ -36,6 +38,7 @@ func (s *Server) HTTPAddress() string {
 }
 
 //GetConfig parses the lotus enviroment variables and returns the Server struct
+//TODO rename me
 func GetConfig() Server {
 	err := godotenv.Load()
 	if err != nil {
@@ -63,7 +66,21 @@ func GetConfig() Server {
 		log.Fatal("Couldn't ping postgres: " + err.Error())
 	}
 
-	if server.Env == "dev" {
+	//Delete all data in the TEST database
+	if server.Env == "test" {
+		if !strings.HasSuffix(server.DBName, "_test") {
+			log.Fatal("Cannot run server tests on a database with a name that doesn't have the '_test' suffix. Exiting.")
+		} else {
+			fmt.Println("Dropping all data")
+			_, err := db.Exec(fmt.Sprintf("DROP OWNED BY %s;", server.DBUser))
+			if err != nil {
+				log.Fatal("Error creating tables: " + err.Error())
+			}
+		}
+	}
+
+	//Create tables
+	if server.Env == "dev" || server.Env == "test" {
 		f, err := os.Open("tables.sql")
 		if err != nil {
 			log.Fatal("Couldn't read tables.sql: " + err.Error())
@@ -77,6 +94,29 @@ func GetConfig() Server {
 		_, err = db.Exec(string(b))
 		if err != nil {
 			log.Fatal("Error creating tables: " + err.Error())
+		}
+	}
+
+	//Seed TEST database
+	if server.Env == "test" {
+		if !strings.HasSuffix(server.DBName, "_test") {
+			log.Fatal("Cannot run server tests on a database with a name that doesn't have the '_test' suffix. Exiting.")
+		} else {
+			fmt.Println("Seeding data")
+			f, err := os.Open("seed.sql")
+			if err != nil {
+				log.Fatal("Couldn't read seed.sql: " + err.Error())
+			}
+
+			b, err := ioutil.ReadAll(f)
+			if err != nil {
+				log.Fatal("Error reading from file: " + err.Error())
+			}
+
+			_, err = db.Exec(string(b))
+			if err != nil {
+				log.Fatal("Error seeding tables: " + err.Error())
+			}
 		}
 	}
 
