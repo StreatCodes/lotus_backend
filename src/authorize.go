@@ -12,8 +12,8 @@ import (
 
 func authorizeHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 	type login struct {
-		email    string
-		password string
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	stmt, err := s.DB.Prepare(`SELECT id, password FROM users WHERE email=$1`)
@@ -31,14 +31,14 @@ func authorizeHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if requestLogin.email == "" || requestLogin.password == "" {
+		if requestLogin.Email == "" || requestLogin.Password == "" {
 			http.Error(w, "An email and password must be present in the request body.", http.StatusBadRequest)
 			return
 		}
 
 		var id int
 		var hash string
-		row := stmt.QueryRow(requestLogin.email)
+		row := stmt.QueryRow(requestLogin.Email)
 
 		err = row.Scan(&id, &hash)
 		if err != nil {
@@ -46,7 +46,7 @@ func authorizeHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(requestLogin.password))
+		err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(requestLogin.Password))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
@@ -59,6 +59,6 @@ func authorizeHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		fmt.Printf("%010d:%#p", id, key)
+		fmt.Fprintf(w, "%010d:%x", id, key)
 	}
 }
