@@ -1,39 +1,28 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
 	"testing"
 )
 
-func init() {
-	//Drop all rows and reset the id sequence
-	fmt.Println("Running user init")
-	server := GetConfig()
-	_, err := server.DB.Exec("TRUNCATE TABLE users RESTART IDENTITY;")
-	if err != nil {
-		log.Fatal("Failed to delete all from users table: " + err.Error())
-		return
-	}
-}
-
 func TestCreateUserHandler(t *testing.T) {
 	payload := `{
-		"name": "lotus",
-		"email": "lotus@example.com",
-		"password": "secur3rBo!z"
+		"name": "john",
+		"email": "john_doe@example.com",
+		"password": "J0hn_1s_c00l!"
 	}`
 
-	req, err := http.NewRequest("POST", "/users", strings.NewReader(payload))
+	req, err := http.NewRequest("POST", "/api/users", strings.NewReader(payload))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(CreateUserHandler(GetConfig()))
+	handler := http.HandlerFunc(CreateUserHandler(server))
 
 	handler.ServeHTTP(rr, req)
 
@@ -44,9 +33,17 @@ func TestCreateUserHandler(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	expected := `1`
-	if strings.TrimSpace(rr.Body.String()) != expected {
-		t.Errorf("handler returned unexpected body: got %#v want %#v",
-			rr.Body.String(), expected)
+
+	//Expect user_id
+	expected := `^\d+$`
+	result := bytes.TrimSpace(rr.Body.Bytes())
+
+	match, err := regexp.Match(expected, result)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !match {
+		t.Errorf("handler returned unexpected body: got %#v want number",
+			rr.Body.String())
 	}
 }
