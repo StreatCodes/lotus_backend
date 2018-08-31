@@ -1,6 +1,9 @@
 ## Reserved urls
- - `/` Obviously the home page
- - `/api/*` The api route
- - `/admin` Admin login interface
- - `/admin/*` Admin/site configuration pages
+ - `GET /` Obviously the home page
+ - `POST /authorize`
+ - `POST/GET /api/*` The api route
+ - `GET /admin` Admin login interface
+ - `GET /admin/*` Admin/site configuration pages
 
+### TODO 
+ - Create inital pages API endpoints
