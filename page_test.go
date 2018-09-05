@@ -9,20 +9,21 @@ import (
 	"testing"
 )
 
-func TestCreateUserHandler(t *testing.T) {
+func TestCreatePageHandler(t *testing.T) {
 	payload := `{
-		"name": "john",
-		"email": "john_doe@example.com",
-		"password": "J0hn_1s_c00l!"
+		"title": "About Us",
+		"slug": "about-us",
+		"parent": null,
+		"sort": null
 	}`
 
-	req, err := http.NewRequest("POST", "/api/users", strings.NewReader(payload))
+	req, err := http.NewRequest("POST", "/api/pages", strings.NewReader(payload))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(CreateUserHandler(server))
+	handler := http.HandlerFunc(CreatePageHandler(server))
 
 	handler.ServeHTTP(rr, req)
 
@@ -32,8 +33,8 @@ func TestCreateUserHandler(t *testing.T) {
 			status, http.StatusOK)
 	}
 
-	// Check the response body is what we expect.
-	//Expect newly created user_id
+	//Check the response body is what we expect.
+	//Expect newly created page_id
 	expected := `^\d+$`
 	result := bytes.TrimSpace(rr.Body.Bytes())
 
