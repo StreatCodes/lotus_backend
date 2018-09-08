@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
@@ -33,9 +33,14 @@ func TestAuthorizeHandler(t *testing.T) {
 
 	//Expect user_id 0 padded : 40 hex values
 	expected := `^\d{10}:[0-9a-f]{80}$`
-	result := bytes.TrimSpace(rr.Body.Bytes())
+	var result string
+	dec := json.NewDecoder(rr.Body)
+	err = dec.Decode(&result)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	match, err := regexp.Match(expected, result)
+	match, err := regexp.Match(expected, []byte(result))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS sessions (
 	user_id 		INTEGER REFERENCES users,
 	created_at		TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	created_ip 		TEXT,
-	key 			TEXT
+	key 			TEXT,
+	expires			TIMESTAMPTZ NOT NULL
 );
 CREATE INDEX ON sessions(user_id);
 
