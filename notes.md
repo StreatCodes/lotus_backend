@@ -10,6 +10,7 @@
    - Add Update method and tests
    - Add Delete method and tests
  - Create inital componets API endpoints
+ - Create page serving functionality (not under `/api`)
  - Create a simple logging function we can call from anywhere 
  
 
