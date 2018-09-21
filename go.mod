@@ -1,6 +1,7 @@
 module github.com/StreatCodes/lotus_backend
 
 require (
+	github.com/cbroglie/mustache v1.0.1
 	github.com/go-chi/chi v3.3.2+incompatible
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
 	github.com/jmoiron/sqlx v0.0.0-20180614180643-0dae4fefe7c0

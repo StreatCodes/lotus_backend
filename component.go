@@ -1,10 +1,21 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 )
+
+//TODO
+type Component struct {
+	ID        int
+	PageID    int
+	CreatedAt time.Time
+	Sort      sql.NullInt64
+	Data      string
+}
 
 //CreateComponentHandler returns an http handler that creates a new Component when posted to
 func CreateComponentHandler(s Server) func(w http.ResponseWriter, r *http.Request) {

@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS pages (
 	created_at		TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	title			TEXT,
 	slug			TEXT,
-	parent			INTEGER,
+	parent			INTEGER REFERENCES pages,
 	sort			INTEGER
 );
 
