@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -14,7 +15,11 @@ import (
 func main() {
 	server := GetConfig()
 
-	buildPages(server)
+	siteTree, err := buildPages(server)
+	if err != nil {
+		log.Fatalf("Error building site %s", err)
+	}
+	server.SiteTree = siteTree
 
 	//Http server setup
 	r := chi.NewRouter()

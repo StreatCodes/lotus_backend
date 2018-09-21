@@ -20,7 +20,12 @@ type Page struct {
 	Slug      string
 	Parent    sql.NullInt64
 	Sort      sql.NullInt64
+	HTML      []byte
 }
+
+//Site tree is our full website tree including everything
+//required to display any page on the site.
+type SiteTree map[string]Page
 
 //Recursively loop over pages to build the full page URL
 func (p *Page) buildURL(pages []Page) string {
@@ -70,15 +75,14 @@ func (p *Page) buildHTML(s Server) (string, error) {
 		html += res
 	}
 
-	fmt.Println(html)
 	return html, nil
 }
 
-func buildPages(s Server) error {
+func buildPages(s Server) (SiteTree, error) {
 	fmt.Println("Running full page build")
 	rows, err := s.DB.Query(`SELECT id, title, slug, parent FROM pages`)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -94,17 +98,26 @@ func buildPages(s Server) error {
 		pages = append(pages, page)
 	}
 
-	siteTree := make(map[string]Page)
+	siteTree := make(SiteTree)
 
 	for _, page := range pages {
+		//TODO create buildPage function, that builds a single page
+		//So we don't need to build the fullsite one a single page or
+		//component update.
 		url := page.buildURL(pages)
-		siteTree[url] = page
 
 		fmt.Printf("Building: %s\n", url)
-		page.buildHTML(s)
+		html, err := page.buildHTML(s)
+		if err != nil {
+			return nil, err
+		}
+
+		page.HTML = []byte(html)
+
+		siteTree[url] = page
 	}
 
-	return nil
+	return siteTree, nil
 }
 
 //ServePageHandler serves the webpages from memory to a user
@@ -115,12 +128,15 @@ func ServePageHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 		//then serve them gzipped content
 		encodings := strings.ToLower(r.Header.Get("Accept-Encoding"))
 
-		supportsGzip := strings.Contains(encodings, "gzip")
-		if supportsGzip {
-			fmt.Fprint(w, r.URL.RequestURI())
-			fmt.Fprint(w, "you support gzip")
-		} else {
-			fmt.Fprint(w, "you don't support gzip")
+		//TODO use me to return gzipped responses
+		_ = strings.Contains(encodings, "gzip")
+
+		uri := r.URL.RequestURI()
+		response := s.SiteTree[uri]
+		_, err := w.Write(response.HTML)
+		if err != nil {
+			log.Fatal("Error writing response", err)
+			return
 		}
 	}
 }

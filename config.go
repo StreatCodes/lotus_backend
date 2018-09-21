@@ -21,6 +21,7 @@ type Server struct {
 	DBAddr   string
 	DBName   string
 	DB       *sqlx.DB
+	SiteTree SiteTree
 }
 
 //PostgresURL is a convience method that returns the postgres connection URL
