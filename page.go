@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"compress/gzip"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -21,6 +23,7 @@ type Page struct {
 	Parent    sql.NullInt64
 	Sort      sql.NullInt64
 	HTML      []byte
+	GzipHTML  []byte
 }
 
 //Site tree is our full website tree including everything
@@ -101,9 +104,6 @@ func buildPages(s Server) (SiteTree, error) {
 	siteTree := make(SiteTree)
 
 	for _, page := range pages {
-		//TODO create buildPage function, that builds a single page
-		//So we don't need to build the fullsite one a single page or
-		//component update.
 		url := page.buildURL(pages)
 
 		fmt.Printf("Building: %s\n", url)
@@ -113,6 +113,16 @@ func buildPages(s Server) (SiteTree, error) {
 		}
 
 		page.HTML = []byte(html)
+
+		//Create gzipped copy of page
+		var buf bytes.Buffer
+		zw := gzip.NewWriter(&buf)
+		zw.Write(page.HTML)
+		err = zw.Close()
+		if err != nil {
+			return nil, err
+		}
+		page.GzipHTML = buf.Bytes()
 
 		siteTree[url] = page
 	}
@@ -129,15 +139,26 @@ func ServePageHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 		encodings := strings.ToLower(r.Header.Get("Accept-Encoding"))
 
 		//TODO use me to return gzipped responses
-		_ = strings.Contains(encodings, "gzip")
+		supportsGzip := strings.Contains(encodings, "gzip")
 
 		uri := r.URL.RequestURI()
-		response := s.SiteTree[uri]
-		_, err := w.Write(response.HTML)
-		if err != nil {
-			log.Fatal("Error writing response", err)
-			return
+		page := s.SiteTree[uri]
+		if supportsGzip {
+			w.Header().Set("Content-Encoding", "gzip")
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			_, err := w.Write(page.GzipHTML)
+			if err != nil {
+				log.Fatal("Error writing response", err)
+				return
+			}
+		} else {
+			_, err := w.Write(page.HTML)
+			if err != nil {
+				log.Fatal("Error writing response", err)
+				return
+			}
 		}
+
 	}
 }
 

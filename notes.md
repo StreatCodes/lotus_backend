@@ -6,13 +6,8 @@
  - `GET /admin/*` Admin/site configuration pages
 
 ### TODO 
- - Create inital pages API endpoints
-   - Add Update method and tests
-   - Add Delete method and tests
- - Create inital componets API endpoints
- - Create page serving functionality (not under `/api`)
- - Create a simple logging function we can call from anywhere 
- 
+ - refactor page build into it's own function
+ - Add GZIP 
 
 ### Caution / Needs review
  - Ordering pages will require a recompute of all order values with a common parent (Our first REST bottle neck!)
