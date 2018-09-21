@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-//TODO
+//Component contains all the information required to display a component
 type Component struct {
 	ID        int
 	PageID    int

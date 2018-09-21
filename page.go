@@ -15,6 +15,7 @@ import (
 	"github.com/cbroglie/mustache"
 )
 
+//Page includes all the information required to display a single page
 type Page struct {
 	ID        int
 	CreatedAt time.Time
@@ -26,7 +27,7 @@ type Page struct {
 	GzipHTML  []byte
 }
 
-//Site tree is our full website tree including everything
+//SiteTree is our full website tree including everything
 //required to display any page on the site.
 type SiteTree map[string]Page
 
