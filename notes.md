@@ -6,8 +6,12 @@
  - `GET /admin/*` Admin/site configuration pages
 
 ### TODO 
+ - Create a working login
+ - Create and admin interface where we can create, delete update and sort pages
+ - Create and interface to add, remove, sort and update components
+ - Clean up
+ - Create some
  - refactor page build into it's own function
- - Add GZIP 
 
 ### Caution / Needs review
  - Ordering pages will require a recompute of all order values with a common parent (Our first REST bottle neck!)
