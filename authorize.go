@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -49,6 +50,10 @@ func authorizeHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 		row := selectUserStmt.QueryRow(requestLogin.Email)
 
 		err = row.Scan(&id, &hash)
+		if err == sql.ErrNoRows {
+			http.Error(w, "No account found with the given email address.", http.StatusUnauthorized)
+			return
+		}
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

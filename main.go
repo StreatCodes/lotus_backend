@@ -32,6 +32,9 @@ func main() {
 
 	r.Get("/*", ServePageHandler(server))
 
+	fs := http.FileServer(http.Dir("./admin"))
+	r.Get("/admin/*", http.StripPrefix("/admin", fs).ServeHTTP)
+
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/authorize", authorizeHandler(server))
 

@@ -1,13 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 )
 
@@ -20,7 +20,7 @@ type Server struct {
 	DBPass   string
 	DBAddr   string
 	DBName   string
-	DB       *sqlx.DB
+	DB       *sql.DB
 	SiteTree SiteTree
 }
 
@@ -57,7 +57,7 @@ func GetConfig() Server {
 		DB:       nil,
 	}
 
-	db, err := sqlx.Open("postgres", server.PostgresURL())
+	db, err := sql.Open("postgres", server.PostgresURL())
 	if err != nil {
 		log.Fatal("Failed to connect to postgres: " + err.Error())
 	}
