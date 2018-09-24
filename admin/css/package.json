@@ -1,0 +1,24 @@
+{
+  "name": "refraction",
+  "version": "0.0.1",
+  "description": "Bootstrap killa",
+  "main": "index.js",
+  "scripts": {
+    "dev": "postcss src/main.css --watch -u postcss-import -o admin.css",
+    "prod": "postcss src/main.css --no-map -o admin.css"
+  },
+  "keywords": [
+    "bootstrap",
+    "sucks",
+    "wang"
+  ],
+  "author": "Streats",
+  "license": "ISC",
+  "dependencies": {
+    "autoprefixer": "^8.2.0",
+    "cssnano": "^3.10.0",
+    "postcss-cli": "^5.0.0",
+    "postcss-css-variables": "^0.8.1",
+    "postcss-import": "^11.1.0"
+  }
+}
