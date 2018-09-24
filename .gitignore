@@ -1,3 +1,7 @@
 lotus_backend
 gin-bin
 .env
+node_modules
+/admin/css/package-lock.json
+/admin/css/admin.css
+/admin/js/dist/
