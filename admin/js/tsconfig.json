@@ -1,17 +1,14 @@
 {
-    "compilerOptions": {
-        "allowJs": false,
-        "target": "es6",
-        "module": "es6",
-        "lib": [
-            "es2016",
-            "dom"
-        ]
-    },
-    "include": [
-        "./src/**/*"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+	"compilerOptions": {
+		"allowJs": false,
+		"lib": ["es2016", "dom"],
+		"target": "es2016",
+		"module": "es2015",
+		"moduleResolution": "node",
+		"noImplicitAny": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true
+	},
+	"include": ["./src/**/*"],
+	"exclude": ["node_modules"]
 }
