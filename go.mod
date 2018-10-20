@@ -2,9 +2,12 @@ module github.com/StreatCodes/lotus_backend
 
 require (
 	9fans.net/go v0.0.0-20180727211846-5d4fa602e1e8 // indirect
+	github.com/0xAX/notificator v0.0.0-20171022182052-88d57ee9043b // indirect
 	github.com/Masterminds/squirrel v0.0.0-20180918132823-3b6e9e966245
 	github.com/acroca/go-symbols v0.0.0-20180523203557-953befd75e22 // indirect
 	github.com/cbroglie/mustache v1.0.1
+	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
+	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974 // indirect
 	github.com/cosiner/argv v0.0.0-20170225145430-13bacc38a0a5 // indirect
 	github.com/derekparker/delve v1.1.0 // indirect
 	github.com/go-chi/chi v3.3.2+incompatible
@@ -17,6 +20,7 @@ require (
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/lib/pq v1.0.0
 	github.com/mattn/go-isatty v0.0.4 // indirect
+	github.com/mattn/go-shellwords v1.0.3 // indirect
 	github.com/mattn/go-sqlite3 v1.9.0 // indirect
 	github.com/mdempsky/gocode v0.0.0-20181014041644-a07fefd98fdc // indirect
 	github.com/peterh/liner v1.1.0 // indirect
@@ -35,5 +39,6 @@ require (
 	golang.org/x/text v0.3.0 // indirect
 	golang.org/x/tools v0.0.0-20181013182035-5e66757b835f // indirect
 	google.golang.org/appengine v1.1.0 // indirect
+	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 	gopkg.in/yaml.v2 v2.2.1 // indirect
 )

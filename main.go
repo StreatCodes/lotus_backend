@@ -4,13 +4,26 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path"
 	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-
 	_ "github.com/lib/pq"
 )
+
+func custFileServer(fs http.FileSystem) http.Handler {
+	fsh := http.FileServer(fs)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := fs.Open(path.Clean(r.URL.Path))
+		if os.IsNotExist(err) {
+			http.ServeFile(w, r, "admin/index.html")
+			return
+		}
+		fsh.ServeHTTP(w, r)
+	})
+}
 
 func main() {
 	server := GetConfig()
@@ -32,8 +45,14 @@ func main() {
 
 	r.Get("/*", ServePageHandler(server))
 
-	fs := http.FileServer(http.Dir("./admin"))
-	r.Get("/admin/*", http.StripPrefix("/admin", fs).ServeHTTP)
+	fs := custFileServer(http.Dir("./admin"))
+	r.Route("/admin", func(r chi.Router) {
+		r.Get("/*", http.StripPrefix("/admin", fs).ServeHTTP)
+
+		r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Println("Hello!")
+		})
+	})
 
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/authorize", authorizeHandler(server))
