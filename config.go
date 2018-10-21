@@ -2,13 +2,17 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
+	"net/mail"
 	"os"
 	"strings"
 
 	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
 )
 
 //Server is our global struct which contains configuration information
@@ -36,6 +40,71 @@ func (s *Server) PostgresURL() string {
 //HTTPAddress is a convience method that returns the HTTP address that the web server should bind to
 func (s *Server) HTTPAddress() string {
 	return s.HTTPAddr + ":" + s.HTTPPort
+}
+
+func generatePassword() string {
+	const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()"
+
+	b := make([]byte, 10)
+	for i := range b {
+		b[i] = characters[rand.Intn(len(characters))]
+	}
+
+	return string(b)
+}
+
+func firstTimeSetup(db *sql.DB) error {
+	var email, confirmEmail string
+
+	fmt.Print("Enter Email: ")
+	_, err := fmt.Scanln(&email)
+	if err != nil {
+		return err
+	}
+	fmt.Print("Confirm email: ")
+	_, err = fmt.Scanln(&confirmEmail)
+	if err != nil {
+		return err
+	}
+
+	if email != confirmEmail {
+		return errors.New("Emails did not match")
+	}
+
+	_, err = mail.ParseAddress(email)
+	if err != nil {
+		return errors.New("A valid email address must be supplied")
+	}
+
+	password := generatePassword()
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	res, err := db.Exec(`INSERT INTO users (
+		name, email, password
+	) VALUES (
+		$1, $2, $3
+	) RETURNING id`, "Admin", email, passwordHash)
+	if err != nil {
+		return err
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows < 1 {
+		return errors.New("something went wrong when creating the Admin user")
+	}
+
+	fmt.Printf("\nCreated the Admin user\nEmail: %s\nPassword: %s\n", email, password)
+	fmt.Println("Please make note of these credentials as you'll need them to login.")
+	fmt.Println()
+
+	return nil
 }
 
 //GetConfig parses the lotus enviroment variables and returns the Server struct
@@ -118,6 +187,25 @@ func GetConfig() Server {
 			if err != nil {
 				log.Fatal("Error seeding tables: " + err.Error())
 			}
+		}
+	} else {
+		//If there are no users, set one up
+		rows := db.QueryRow(`SELECT id FROM users`)
+
+		var userExists int
+		err = rows.Scan(&userExists)
+		if err == sql.ErrNoRows {
+			fmt.Println("No users detected, setting up admin.")
+			for {
+				err := firstTimeSetup(db)
+				if err != nil {
+					fmt.Println(err)
+				} else {
+					break
+				}
+			}
+		} else if err != nil {
+			log.Fatal("Error detecting initial user: ", err.Error())
 		}
 	}
 
