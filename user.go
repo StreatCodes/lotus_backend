@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/mail"
 	"regexp"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -98,6 +99,48 @@ func CreateUserHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 
 		enc := json.NewEncoder(w)
 		err = enc.Encode(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+//GetAllUsersHandler returns an http handler that returns all the users as a JSON array
+func GetAllUsersHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
+	type User struct {
+		ID        int       `json:"id"`
+		CreatedAt time.Time `json:"created_at"`
+		Name      string    `json:"name"`
+		Email     string    `json:"email"`
+	}
+
+	stmt, err := s.DB.Prepare(`SELECT id, created_at, name, email FROM users`)
+	if err != nil {
+		log.Fatal("Error preparing sql statement: " + err.Error())
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		rows, err := stmt.Query()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var users []User
+
+		for rows.Next() {
+			var user User
+			if err := rows.Scan(&user.ID, &user.CreatedAt, &user.Name, &user.Email); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			users = append(users, user)
+		}
+
+		enc := json.NewEncoder(w)
+		err = enc.Encode(users)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
