@@ -5,3 +5,4 @@ node_modules
 /admin/css/package-lock.json
 /admin/css/admin.css
 /admin/js/dist/
+/admin
