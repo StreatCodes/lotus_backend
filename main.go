@@ -45,6 +45,7 @@ func main() {
 
 	r.Get("/*", ServePageHandler(server))
 
+	//Handle reverse proxy/try_file
 	fs := custFileServer(http.Dir("./admin"))
 	r.Route("/admin", func(r chi.Router) {
 		r.Get("/*", http.StripPrefix("/admin", fs).ServeHTTP)
@@ -54,10 +55,13 @@ func main() {
 		})
 	})
 
-	r.Route("/api", func(r chi.Router) {
-		r.Post("/authorize", authorizeHandler(server))
+	r.Post("/api/authorize", authorizeHandler(server))
 
+	//Admin API
+	r.Route("/api", func(r chi.Router) {
+		r.Use(authorizedMiddleware(server))
 		r.Post("/users", CreateUserHandler(server))
+		r.Get("/users", GetAllUsersHandler(server))
 		r.Post("/componets", CreateComponentHandler(server))
 		r.Post("/pages", CreatePageHandler(server))
 	})

@@ -1,3 +1,18 @@
+## Install
+ - Create a .env with the following:
+```
+LOTUS_ENV="dev"
+LOTUS_HTTP_ADDR="0.0.0.0"
+LOTUS_HTTP_PORT="3001"
+LOTUS_DB_USER="lotus"
+LOTUS_DB_PASS="lotus"
+LOTUS_DB_ADDR="localhost"
+LOTUS_DB_NAME="lotus"
+```
+ - Create the corresponding database and database users.
+ - Create a link to the admin frontend `ln -s ~/src/node/lotus_frontend admin`
+ - Build and run `go build; ./lotus_backend`
+
 ## Reserved urls
  - `GET /` Obviously the home page
  - `POST /authorize`
@@ -6,11 +21,9 @@
  - `GET /admin/*` Admin/site configuration pages
 
 ### TODO 
- - Create a working login
  - Create and admin interface where we can create, delete update and sort pages
  - Create and interface to add, remove, sort and update components
  - Clean up
- - Create some
  - refactor page build into it's own function
 
 ### Caution / Needs review

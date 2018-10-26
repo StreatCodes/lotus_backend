@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -95,5 +97,50 @@ func authorizeHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+	}
+}
+
+func authorizedMiddleware(s Server) func(next http.Handler) http.Handler {
+	type UserID int
+	selectUserStmt, err := s.DB.Prepare(`SELECT user_id FROM sessions WHERE user_id=$1 AND key=$2 AND expires>NOW()`)
+	if err != nil {
+		log.Fatal("Error preparing sql statement: " + err.Error())
+	}
+
+	//A strict regex to get the authorization token from the header
+	authRegex, err := regexp.Compile(`LotusToken: (\d{10}):([0-9a-f]{80}$)`)
+	if err != nil {
+		log.Fatal("Error compiling auth token regexp:" + err.Error())
+	}
+
+	return func(h http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			authString := r.Header.Get("Authorization")
+			matches := authRegex.FindStringSubmatch(authString)
+
+			if len(matches) != 3 {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
+			id := strings.TrimLeft(matches[1], "0")
+			key := matches[2]
+
+			fmt.Printf("ID: %s\nKey: %s", id, key)
+			row := selectUserStmt.QueryRow(id, key)
+
+			var userID UserID
+			err := row.Scan(&userID)
+			if err != nil {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
+			//TODO put userID in context
+
+			h.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(fn)
 	}
 }
