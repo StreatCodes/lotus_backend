@@ -60,6 +60,7 @@ func main() {
 	//Admin API
 	r.Route("/api", func(r chi.Router) {
 		r.Use(authorizedMiddleware(server))
+		r.Get("/authorized", func(w http.ResponseWriter, r *http.Request) {})
 		r.Post("/users", CreateUserHandler(server))
 		r.Get("/users", GetAllUsersHandler(server))
 		r.Post("/componets", CreateComponentHandler(server))
