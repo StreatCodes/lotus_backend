@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"database/sql"
 	"encoding/json"
@@ -13,6 +14,9 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+//UserContextKey namespace our context from other libraries
+type UserContextKey string
 
 func authorizeHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 	type login struct {
@@ -75,7 +79,7 @@ func authorizeHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		key := fmt.Sprintf("%010d:%x", id, randBytes)
+		key := fmt.Sprintf("%x", randBytes)
 
 		//If remember me is set keep session for a year, otherwise 2 hours
 		var expires time.Time
@@ -90,9 +94,9 @@ func authorizeHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error creating session"+err.Error(), http.StatusInternalServerError)
 		}
 
-		//Write key to response
+		//Write key to response with the user_id included
 		enc := json.NewEncoder(w)
-		err = enc.Encode(key)
+		err = enc.Encode(fmt.Sprintf("%010d:%s", id, key))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -101,7 +105,6 @@ func authorizeHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 }
 
 func authorizedMiddleware(s Server) func(next http.Handler) http.Handler {
-	type UserID int
 	selectUserStmt, err := s.DB.Prepare(`SELECT user_id FROM sessions WHERE user_id=$1 AND key=$2 AND expires>NOW()`)
 	if err != nil {
 		log.Fatal("Error preparing sql statement: " + err.Error())
@@ -126,17 +129,17 @@ func authorizedMiddleware(s Server) func(next http.Handler) http.Handler {
 			id := strings.TrimLeft(matches[1], "0")
 			key := matches[2]
 
-			fmt.Printf("ID: %s\nKey: %s", id, key)
 			row := selectUserStmt.QueryRow(id, key)
 
-			var userID UserID
+			var userID int
 			err := row.Scan(&userID)
 			if err != nil {
+				fmt.Println(err.Error())
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 
-			//TODO put userID in context
+			context.WithValue(r.Context(), UserContextKey("userID"), userID)
 
 			h.ServeHTTP(w, r)
 		}
