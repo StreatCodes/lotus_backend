@@ -46,13 +46,14 @@ func main() {
 	r.Get("/*", ServePageHandler(server))
 
 	//Handle reverse proxy/try_file
-	fs := custFileServer(http.Dir("./admin"))
+	adminFS := custFileServer(http.Dir("./admin"))
 	r.Route("/admin", func(r chi.Router) {
-		r.Get("/*", http.StripPrefix("/admin", fs).ServeHTTP)
+		r.Get("/*", http.StripPrefix("/admin", adminFS).ServeHTTP)
+	})
 
-		r.NotFound(func(w http.ResponseWriter, r *http.Request) {
-			fmt.Println("Hello!")
-		})
+	mediaFS := http.FileServer(http.Dir("./media"))
+	r.Route("/media", func(r chi.Router) {
+		r.Get("/*", http.StripPrefix("/media", mediaFS).ServeHTTP)
 	})
 
 	r.Post("/api/authorize", authorizeHandler(server))
@@ -63,6 +64,7 @@ func main() {
 		r.Get("/authorized", func(w http.ResponseWriter, r *http.Request) {})
 		r.Post("/users", CreateUserHandler(server))
 		r.Get("/users", GetAllUsersHandler(server))
+		r.Post("/media/upload", FileUploadHandler(server))
 		r.Post("/componets", CreateComponentHandler(server))
 		r.Post("/pages", CreatePageHandler(server))
 	})

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"net/mail"
@@ -121,6 +122,9 @@ func GetAllUsersHandler(s Server) func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		userID := r.Context().Value(UserContextKey("userID"))
+		fmt.Printf("UserID: %d\n", userID)
+
 		rows, err := stmt.Query()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
